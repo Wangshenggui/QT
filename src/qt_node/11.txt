@@ -1,0 +1,28 @@
+
+[ERROR] [1733899431.375150286]: Unsupported depth video mode - Resolution: 640x400@30Hz Format: Depth 1mm
+ * Serving Flask app 'qt2_node'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:29680
+ * Running on http://192.168.0.123:29680
+Traceback (most recent call last):
+  File "/home/wheeltec/QT/devel/lib/qt_node/qt2_node.py", line 15, in <module>
+    exec(compile(fh.read(), python_script, 'exec'), context)
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 217, in <module>
+    main()
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 203, in main
+    dialog = MyDialog()
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 11, in __init__
+    self.setupUi()  # 设置UI
+AttributeError: 'MyDialog' object has no attribute 'setupUi'
+Traceback (most recent call last):
+  File "/home/wheeltec/QT/devel/lib/qt_node/qt2_node.py", line 15, in <module>
+    exec(compile(fh.read(), python_script, 'exec'), context)
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 224, in <module>
+    main()
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 215, in main
+    dialog = MyDialog()
+  File "/home/wheeltec/QT/src/qt_node/src/qt2_node.py", line 45, in __init__
+    self.room3.clicked.connect(lambda: self.select_room(3))
+AttributeError: 'MyDialog' object has no attribute 'room3'

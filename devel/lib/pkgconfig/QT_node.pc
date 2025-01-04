@@ -1,0 +1,8 @@
+prefix=/home/wheeltec/QT/devel
+
+Name: QT_node
+Description: Description of QT_node
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

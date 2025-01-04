@@ -1,0 +1,215 @@
+import sys
+sys.path.append('/home/wheeltec/QT/src/qt_node/src')  # 将文件路径加入到 sys.path
+import socket
+import threading
+import rospy
+from geometry_msgs.msg import Point
+from std_msgs.msg import Int32, Int8
+from PyQt5 import QtWidgets, QtGui, QtCore
+from untitled2 import Ui_Dialog
+import select
+
+class MyDialog(QtWidgets.QDialog, Ui_Dialog):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)  # 设置UI
+
+        # 存储点击的房间数据
+        self.selected_rooms = []
+
+        # 房间的数据字典，每个房间都有一个 (x, y, z) 坐标
+        self.room_data = {
+            1: (-3.29, 63.1, 0),  # room1 数据 (x, y, z)
+            2: (5.65, -0.355, 0),  # room2 数据 (x, y, z)
+            3: (-3.29, -40.4, 0),  # room3 数据 (x, y, z)
+            4: (-3.29, 40.2, 0)   # room4 数据 (x, y, z)
+        }
+
+        # 初始化 ROS 节点
+        rospy.init_node('room_data_publisher', anonymous=True)
+        self.publisher = rospy.Publisher('/room_data_topic', Point, queue_size=10)  # 创建一个发布者
+
+        # 连接房间按钮的点击事件
+        self.room1.clicked.connect(lambda: self.select_room(1))
+        self.room2.clicked.connect(lambda: self.select_room(2))
+        self.r00m3.clicked.connect(lambda: self.select_room(3))
+        self.room4.clicked.connect(lambda: self.select_room(4))
+
+        # 连接执行按钮的点击事件
+        self.pushButton.clicked.connect(self.publish_data)
+
+        # 初始化 QStandardItemModel 用来显示数据
+        self.model = QtGui.QStandardItemModel()
+
+        # 确保 list_view 是 QListView
+        if isinstance(self.list_view, QtWidgets.QListView):
+            self.list_view.setModel(self.model)  # 将 model 设置给 QListView
+        else:
+            print("Error: 'list_view' is not a QListView!")
+
+        # 初始化 QLabel，用于显示火警信息
+        self.fire_label = QtWidgets.QLabel(self)  # 创建 QLabel
+        self.fire_label.setGeometry(10, 10, 400, 30)  # 设置位置和大小
+        self.fire_label.setAlignment(QtCore.Qt.AlignCenter)  # 设置文本居中
+        self.fire_label.setText("等待火灾状态...")  # 默认文本
+
+        # 存储TCP连接的套接字
+        self.client_sockets = []
+
+        # 启动 TCP 服务器线程
+        self.server_thread = threading.Thread(target=self.start_tcp_server, args=('0.0.0.0', 5000))
+        self.server_thread.daemon = True
+        self.server_thread.start()
+
+    def select_room(self, room_number):
+        """
+        每次点击房间按钮时，将该房间的 (x, y, z) 数据加入或移除列表
+        """
+        if room_number not in self.selected_rooms:
+            self.selected_rooms.append(room_number)
+            print(f"Room {room_number} selected, data: {self.room_data[room_number]}")
+        else:
+            self.selected_rooms.remove(room_number)
+            print(f"Room {room_number} deselected, data removed")
+
+        # 更新 list_view 中的内容
+        self.update_show_list()
+
+    def update_show_list(self):
+        """
+        更新 list_view 中的列表，显示所有已选中的房间
+        """
+        self.model.clear()  # 清空当前的列表
+
+        # 将选中的房间数据添加到模型中
+        for room in self.selected_rooms:
+            room_name = f"Room {room}: {self.room_data[room]}"
+            item = QtGui.QStandardItem(room_name)
+            item.setTextAlignment(QtCore.Qt.AlignCenter)  # 设置文本居中显示
+            self.model.appendRow(item)
+
+    def publish_data(self):
+        """
+        点击 'execute' 按钮时，将选中的房间数据发布出去
+        """
+        selected_data = [self.room_data[room] for room in self.selected_rooms]
+
+        if selected_data:
+            print("Publishing data for selected rooms:")
+
+            # 构建消息字符串，首先添加帧头
+            frame_header = 1999  # 帧头为 1999
+            frame_footer = 2999  # 帧尾为 2999
+
+            # 构建数据部分，将每个房间的 (x, y, z) 格式化成字符串并拼接
+            message_data = []
+            for data in selected_data:
+                # 将数据 (x, y, z) 转换为字符串并添加到列表中
+                message_data.append(f"{data[0]} {data[1]} {data[2]}")
+
+            # 拼接完整的消息（帧头 + 数据 + 帧尾）
+            full_message = f"{frame_header} " + " ".join(message_data) + f" {frame_footer}"
+
+            # 打印完整的消息（用于调试）
+            print(f"Sending message: {full_message}")
+
+            # 发布帧头
+            point_header = Point()
+            point_header.x = frame_header
+            self.publisher.publish(point_header)
+
+            # 发布数据部分（每个房间数据） 
+            for data in selected_data:
+                point_msg = Point()
+                point_msg.x = data[0]
+                point_msg.y = data[1]
+                point_msg.z = data[2]
+                self.publisher.publish(point_msg)
+
+            # 发布帧尾
+            point_footer = Point()
+            point_footer.x = frame_footer
+            self.publisher.publish(point_footer)
+
+            print("Data published to /room_data_topic.")
+        else:
+            print("No rooms selected, nothing to send.")
+
+    def start_tcp_server(self, host='0.0.0.0', port=5000):
+        """
+        启动一个 TCP 服务器，监听指定的地址和端口
+        """
+        # 创建一个 TCP socket 对象
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setblocking(False)  # 设置为非阻塞模式
+        server_socket.bind((host, port))
+        server_socket.listen(5)
+        print(f"服务器启动，监听 {host}:{port} 端口...")
+
+        # 使用 select 监听套接字
+        inputs = [server_socket]
+        
+        while True:
+            # 使用 select 来监听输入事件
+            readable, _, _ = select.select(inputs, [], [])
+            
+            for s in readable:
+                if s is server_socket:
+                    # 接受新的客户端连接
+                    client_socket, client_address = server_socket.accept()
+                    print(f"客户端 {client_address} 已连接")
+                    inputs.append(client_socket)  # 将新的客户端套接字添加到 inputs 列表
+
+                    # 在 GUI 中显示客户端连接信息
+                    self.add_message_to_listview(f"客户端 {client_address} 已连接")
+
+                else:
+                    # 接收客户端的数据
+                    data = s.recv(1024)
+                    if data:
+                        data_str = data.decode('utf-8')
+                        print(f"接收到的数据: {data_str}")
+
+                        # 在 GUI 中显示收到的数据
+                        self.add_message_to_listview(f"收到数据: {data_str}")
+                        s.send("数据已接收".encode('utf-8'))  # 回复客户端
+
+                    else:
+                        # 如果没有数据，表示客户端关闭了连接
+                        print(f"客户端 {s.getpeername()} 断开连接")
+                        self.add_message_to_listview(f"客户端 {s.getpeername()} 断开连接")
+                        inputs.remove(s)
+                        s.close()
+
+    def add_message_to_listview(self, message):
+        """
+        向 list_view 添加消息
+        """
+        item = QtGui.QStandardItem(message)
+        item.setTextAlignment(QtCore.Qt.AlignCenter)  # 设置文本居中显示
+        self.model.appendRow(item)
+
+
+def main():
+    # 创建 Qt 应用
+    app = QtWidgets.QApplication(sys.argv)
+
+    # 创建 Dialog 窗口并设置 UI
+    dialog = MyDialog()
+
+    # 显示界面
+    dialog.show()  # 现在调用 show() 方法没有冲突了
+
+    # 启动 TCP 服务器线程
+    server_thread = threading.Thread(target=dialog.start_tcp_server, args=('0.0.0.0', 5000))
+    server_thread.daemon = True
+    server_thread.start()
+
+    # 启动 Qt 应用的事件循环
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
+
+
+

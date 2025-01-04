@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1854</width>
+    <height>1026</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QListView" name="zd4">
+   <property name="geometry">
+    <rect>
+     <x>-10</x>
+     <y>0</y>
+     <width>2021</width>
+     <height>1061</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDateTimeEdit" name="dateTimeEdit">
+   <property name="geometry">
+    <rect>
+     <x>820</x>
+     <y>0</y>
+     <width>194</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>940</x>
+     <y>850</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>execute</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>850</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>cancel</string>
+   </property>
+  </widget>
+  <widget class="QListView" name="zd3">
+   <property name="geometry">
+    <rect>
+     <x>880</x>
+     <y>510</y>
+     <width>441</width>
+     <height>331</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>520</y>
+     <width>1131</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>120.jpg</pixmap>
+   </property>
+  </widget>
+  <widget class="QCommandLinkButton" name="room1">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>410</y>
+     <width>177</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select 1</string>
+   </property>
+  </widget>
+  <widget class="QCommandLinkButton" name="room2">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>450</y>
+     <width>177</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select2</string>
+   </property>
+  </widget>
+  <widget class="QCommandLinkButton" name="r00m3">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>490</y>
+     <width>177</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select3</string>
+   </property>
+  </widget>
+  <widget class="QCommandLinkButton" name="room4">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>530</y>
+     <width>177</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select4</string>
+   </property>
+  </widget>
+  <widget class="QListView" name="show">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>400</y>
+     <width>451</width>
+     <height>401</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>-10</y>
+     <width>1911</width>
+     <height>1071</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>9.jpg</pixmap>
+   </property>
+  </widget>
+  <zorder>zd3</zorder>
+  <zorder>zd4</zorder>
+  <zorder>label_2</zorder>
+  <zorder>show</zorder>
+  <zorder>r00m3</zorder>
+  <zorder>room2</zorder>
+  <zorder>room1</zorder>
+  <zorder>room4</zorder>
+  <zorder>label</zorder>
+  <zorder>pushButton</zorder>
+  <zorder>pushButton_2</zorder>
+  <zorder>dateTimeEdit</zorder>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
